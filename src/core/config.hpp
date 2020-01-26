@@ -1,0 +1,6 @@
+#ifndef QT5_OGRE3D_CONFIG_H
+#define QT5_OGRE3D_CONFIG_H
+
+#define DEBUG 1
+
+#endif // QT5_OGRE3D_CONFIG_H

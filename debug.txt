@@ -1,0 +1,2 @@
+Can't assign material Gizmo/Blue to the ManualObject scaleGizmo because this Material does not exist in group General. Have you forgotten to define it in a .material script?
+what===12Exception code=0xc0000005 flags=0x0 at 0x000000001FA740D4. Access violation - attempting to read data at address 0xFFFFFFFF2F9CCCB8
