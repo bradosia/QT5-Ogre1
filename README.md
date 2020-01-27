@@ -13,4 +13,16 @@ Test application using QT5 and OGRE1
 
 # Build
 
-Only tested for minGW
+Only tested for MSYS2/minGW.
+
+Shared Only:
+
+```shell
+cmake -G "MSYS Makefiles" -B build -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON
+```
+
+Static Only:
+
+```shell
+cmake -G "MSYS Makefiles" -B build -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON
+```
