@@ -12,19 +12,44 @@
 // QT
 #include <QDebug>
 #include <QHBoxLayout>
-#include <QWidget>
 #include <QMessageBox>
 #include <QStandardPaths>
+#include <QWidget>
 
 // OGRE
-#include <RenderSystems/GL/OgreGLPlugin.h>
-#include <RenderSystems/GL3Plus/OgreGL3PlusPlugin.h>
+#include <OgreConfigFile.h>
 #include <OgreRoot.h>
 #include <OgreTextureManager.h>
-#include <OgreConfigFile.h>
+#include <RenderSystems/GL/OgreGLPlugin.h>
+#include <RenderSystems/GL3Plus/OgreGL3PlusPlugin.h>
 
 Application::Application(int &argc, char **argv) : QApplication(argc, argv) {
+  // Ogre Initialize
+  initializeOgre();
 
+  /*
+   * Splash screen here with loading bar?
+   */
+
+  //  QWidget *mainwindow = new QWidget();
+
+  //  QHBoxLayout *layout = new QHBoxLayout(mainwindow);
+
+  //  MainView *view = new MainView;
+  //  QWidget *container = QWidget::createWindowContainer(view, mainwindow);
+
+  //  layout->addWidget(container);
+  //  mainwindow->setLayout(layout);
+
+  //  mainwindow->show();
+
+  mainWindow = std::make_unique<MainWindow>();
+  mainWindow->show();
+}
+
+Application::~Application() {}
+
+void Application::initializeOgre() {
   // Ogre Initialize
   Ogre::Root *root =
       new Ogre::Root(Ogre::BLANKSTRING, Ogre::BLANKSTRING, Ogre::BLANKSTRING);
@@ -84,21 +109,4 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv) {
 
   Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(0);
   Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-
-  //  QWidget *mainwindow = new QWidget();
-
-  //  QHBoxLayout *layout = new QHBoxLayout(mainwindow);
-
-  //  MainView *view = new MainView;
-  //  QWidget *container = QWidget::createWindowContainer(view, mainwindow);
-
-  //  layout->addWidget(container);
-  //  mainwindow->setLayout(layout);
-
-  //  mainwindow->show();
-
-  w = new MainWindow();
-  w->show();
 }
-
-Application::~Application() {}

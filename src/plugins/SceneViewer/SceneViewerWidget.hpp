@@ -35,9 +35,8 @@
 #include <QPaintEvent>
 #include <QHBoxLayout>
 
-#include "SceneViewerView.hpp"
-#include "../RenderViewer/RenderViewerView.hpp"
-#include "SceneViewerWidgetOverlay.h"
+#include "SceneViewerInner.hpp"
+//#include "../RenderViewer/RenderViewerWidget.hpp"
 
 class SceneViewerWidget : public QWidget {
   Q_OBJECT
@@ -49,11 +48,7 @@ public:
   void resizeEvent(QResizeEvent *event);
 
 private:
-  // main window view
-  SceneViewerView mainView{this};
-  SceneViewerWidgetOverlay overlay{this};
-  QHBoxLayout layout;
-  QHBoxLayout layoutInner;
-  std::unique_ptr<QWidget> sceneViewerViewContainer;
+  std::unique_ptr<SceneViewerInner> widgetInner;
+  std::unique_ptr<QVBoxLayout> layout;
 };
 #endif // MAINWINDOW_H

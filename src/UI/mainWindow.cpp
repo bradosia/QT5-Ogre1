@@ -18,14 +18,17 @@
 /*
  * UI
  */
-#include "mainWindow.h"
+#include "MainWindow.hpp"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent) {
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+  // UI
   ui.setupUi(this);
-  SceneViewerWidget *sceneViewerWidget = new SceneViewerWidget(this);
-  this->setObjectName("hi");
-  sceneViewerWidget->setParent(this);
+  // plugins
+  // why does setObjectName() not seem to change the name
+  this->setObjectName("testName");
+  sceneViewerWidget = std::make_unique<SceneViewerWidget>(this);
+  renderViewerWidget = std::make_unique<RenderViewerWidget>(this);
+  // sceneViewerWidget->setParent(this);
 
   // QWidget *sceneViewerWidget = new SceneViewerWidget(this);
   // QWidget *container = QWidget::createWindowContainer(mainView);
@@ -34,9 +37,23 @@ MainWindow::MainWindow(QWidget *parent)
   // mainView->show();
 
   // sceneViewerWidget.setParent(this);
-  setCentralWidget(sceneViewerWidget);
 
-  // subView = new SubView(this);
-  // subView->resize(1280 / 2, 960 / 2);
-  // subView->show();
+  // find specific widget
+  printf("===== DEBUG: ATTEMPTING TO FIND CENTRAL... =====\n");
+  QList<QHBoxLayout *> widgetCentralWidgetList = this->findChildren<QHBoxLayout *>(
+      "horizontalLayout", Qt::FindChildrenRecursively);
+  if (!widgetCentralWidgetList.empty()) {
+    printf("===== DEBUG: CENTRAL FOUND =====\n");
+    QHBoxLayout *layout = widgetCentralWidgetList.at(0);
+    layout->addWidget(sceneViewerWidget.get());
+    layout->addWidget(renderViewerWidget.get());
+
+
+    // layout->addWidget(sceneViewerWidget.get());
+
+    // toolBarWidget->setFixedHeight(50);
+    // toolBarWidget->setContentsMargins(10, 10, 10, 10);
+  }
+
+  // setCentralWidget(sceneViewerWidget.get());
 }

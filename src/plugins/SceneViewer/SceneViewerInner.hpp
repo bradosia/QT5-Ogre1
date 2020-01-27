@@ -13,17 +13,18 @@
  * Icons and images owned by their respective owners
  */
 
-#pragma once
+#ifndef PLUGIN_SCENE_VIEWER_INNER_H
+#define PLUGIN_SCENE_VIEWER_INNER_H
 
 #include "SceneViewerCommon.hpp"
 #include "controller/CameraController.hpp"
-#include "plugins/SceneViewer/gizmo/RotateGizmo.hpp"
-#include "plugins/SceneViewer/gizmo/ScaleGizmo.hpp"
-#include "plugins/SceneViewer/gizmo/TranslateGizmo.hpp"
 #include "loader/AssimpSceneLoader.hpp"
 #include "object/ActivePointObject.hpp"
 #include "object/AxisGridLineObject.hpp"
 #include "object/CameraObject.hpp"
+#include "plugins/SceneViewer/gizmo/RotateGizmo.hpp"
+#include "plugins/SceneViewer/gizmo/ScaleGizmo.hpp"
+#include "plugins/SceneViewer/gizmo/TranslateGizmo.hpp"
 
 #include <OgreCamera.h>
 #include <OgreEntity.h>
@@ -42,6 +43,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QFileDialog>
+#include <QHBoxLayout>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
@@ -55,22 +57,26 @@
 #include <QToolBar>
 #include <QTranslator>
 #include <QTreeView>
+#include <QVBoxLayout>
 
-#include "window/OgreWindow.hpp"
+#include "SceneViewerOverlay.hpp"
+#include "window/OgreWidget.hpp"
 
 class CameraController;
 class TranslateGizmo;
 class RotateGizmo;
 class ScaleGizmo;
 
-class SceneViewerView : public OgreWindow {
+class SceneViewerInner : public OgreWidget {
   Q_OBJECT
 public:
-  explicit SceneViewerView(QWidget *parentWidget_ = nullptr,
-                    QWindow *parentWindow_ = nullptr);
-  ~SceneViewerView();
+  explicit SceneViewerInner(QWidget *parentWidget_ = nullptr);
+  ~SceneViewerInner();
+
+  float frameRate;
 
   void setParentWidget(QWidget *parentWidget_);
+  void setOverlayWidget(QWidget *overlayWidget_);
   void rubberBandPaint(QPaintEvent *event, QPainter &p);
 
 protected:
@@ -110,4 +116,11 @@ protected:
   //! rubber rectangle for the mouse selection.
   QRubberBand *qRubberBand;
   QWidget *parentWidget;
+  QWidget *overlayWidget;
+
+private:
+  std::unique_ptr<SceneViewerOverlay> widgetOverlay;
+  std::unique_ptr<QVBoxLayout> layoutInner;
 };
+
+#endif // PLUGIN_SCENE_VIEWER_INNER_H

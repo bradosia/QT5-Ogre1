@@ -1,9 +1,20 @@
-#include "SceneViewerView.hpp"
+#include "SceneViewerInner.hpp"
 
 #include <QPainter>
 
-SceneViewerView::SceneViewerView(QWidget *parentWidget_, QWindow *parentWindow_)
-    : OgreWindow(parentWidget_), qRubberBand(0), parentWidget(parentWidget_) {
+SceneViewerInner::SceneViewerInner(QWidget *parentWidget_)
+    : OgreWidget(parentWidget_), qRubberBand(0), parentWidget(parentWidget_),
+      overlayWidget(0) {
+
+  layoutInner = std::make_unique<QVBoxLayout>();
+  widgetOverlay = std::make_unique<SceneViewerOverlay>(this);
+  // setMargin is deprecated
+  // layoutInner->setMargin(0);
+  layoutInner->setContentsMargins(0, 0, 0, 0);
+  layoutInner->setSpacing(0);
+  layoutInner->addWidget(widgetOverlay.get());
+  // widgetOverlay->raise();
+  this->setLayout(layoutInner.get());
 
   Ogre::String sceneTypeName =
       Ogre::DefaultSceneManagerFactory::FACTORY_TYPE_NAME;
@@ -32,6 +43,10 @@ SceneViewerView::SceneViewerView(QWidget *parentWidget_, QWindow *parentWindow_)
   Ogre::Viewport *pViewPort = mRenderWindow->addViewport(mCamera);
   pViewPort->setBackgroundColour(Ogre::ColourValue(0.1f, 0.1f, 0.1f));
 
+  printf("===== DEBUG: Init Render Window Size (%d,%d) =====\n",
+         mRenderWindow->getWidth(), mRenderWindow->getHeight());
+  // mRenderWindow->resize(100, 100);
+  // mRenderWindow->windowMovedOrResized();
   mCamera->setAspectRatio(Ogre::Real(mRenderWindow->getWidth()) /
                           Ogre::Real(mRenderWindow->getHeight()));
   mCamera->setAutoAspectRatio(true);
@@ -39,13 +54,13 @@ SceneViewerView::SceneViewerView(QWidget *parentWidget_, QWindow *parentWindow_)
   createScene();
 }
 
-SceneViewerView::~SceneViewerView() {
+SceneViewerInner::~SceneViewerInner() {
   if (mCameraController) {
     delete mCameraController;
   }
 }
 
-void SceneViewerView::createScene() {
+void SceneViewerInner::createScene() {
 
   mSceneManager->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
 
@@ -167,7 +182,7 @@ void SceneViewerView::createScene() {
   mScaleGizmo->setVisible(false);
 }
 
-void SceneViewerView::setGizmoTarget(Ogre::SceneNode *node) {
+void SceneViewerInner::setGizmoTarget(Ogre::SceneNode *node) {
 
   mGizmoTargetNode = node;
 
@@ -176,7 +191,7 @@ void SceneViewerView::setGizmoTarget(Ogre::SceneNode *node) {
   mScaleGizmo->attachNode(mGizmoTargetNode);
 }
 
-void SceneViewerView::keyPressEvent(QKeyEvent *event) {
+void SceneViewerInner::keyPressEvent(QKeyEvent *event) {
 
   if (event->key() == Qt::Key_1) {
     mTranslateGizmo->setVisible(true);
@@ -219,55 +234,48 @@ void SceneViewerView::keyPressEvent(QKeyEvent *event) {
 
   if (mCameraController) {
     mCameraController->keyPressed(event);
-    parentWidget->update();
-    // renderNow();
+    this->update();
   }
 }
 
-void SceneViewerView::keyReleaseEvent(QKeyEvent *event) {
+void SceneViewerInner::keyReleaseEvent(QKeyEvent *event) {
   if (mCameraController) {
     mCameraController->keyReleased(event);
-    parentWidget->update();
-    // renderNow();
+    this->update();
   }
 }
 
-void SceneViewerView::wheelEvent(QWheelEvent *event) {
+void SceneViewerInner::wheelEvent(QWheelEvent *event) {
   if (mCameraController) {
     mCameraController->mouseWheelRolled(event);
-    parentWidget->update();
-    // renderNow();
+    this->update();
   }
 }
 
-void SceneViewerView::mousePressEvent(QMouseEvent *event) {
+void SceneViewerInner::mousePressEvent(QMouseEvent *event) {
 
   Ogre::Real x = Ogre::Real(event->windowPos().x()) / width();
   Ogre::Real y = Ogre::Real(event->windowPos().y()) / height();
   Ogre::Ray ray = mCamera->getCameraToViewportRay(x, y);
 
   if (mTranslateGizmo->mousePressed(ray)) {
-    parentWidget->update();
-    // renderNow();
+    this->update();
     return;
   }
 
   if (mRotateGizmo->mousePressed(ray)) {
-    parentWidget->update();
-    // renderNow();
+    this->update();
     return;
   }
 
   if (mScaleGizmo->mousePressed(ray)) {
-    parentWidget->update();
-    // renderNow();
+    this->update();
     return;
   }
 
   if (mCameraController) {
     mCameraController->mousePressed(event);
-    parentWidget->update();
-    // renderNow();
+    this->update();
   }
 
   if (Qt::LeftButton) {
@@ -280,33 +288,29 @@ void SceneViewerView::mousePressEvent(QMouseEvent *event) {
   }
 }
 
-void SceneViewerView::mouseMoveEvent(QMouseEvent *event) {
+void SceneViewerInner::mouseMoveEvent(QMouseEvent *event) {
   Ogre::Real x = Ogre::Real(event->windowPos().x()) / width();
   Ogre::Real y = Ogre::Real(event->windowPos().y()) / height();
   Ogre::Ray ray = mCamera->getCameraToViewportRay(x, y);
 
   if (mTranslateGizmo->mouseMoved(ray)) {
-    parentWidget->update();
-    // renderNow();
+    this->update();
     return;
   }
 
   if (mRotateGizmo->mouseMoved(ray)) {
-    parentWidget->update();
-    // renderNow();
+    this->update();
     return;
   }
 
   if (mScaleGizmo->mouseMoved(ray)) {
-    parentWidget->update();
-    // renderNow();
+    this->update();
     return;
   }
 
   if (mCameraController && (event->buttons() & Qt::LeftButton)) {
     mCameraController->mouseMoved(event);
-    parentWidget->update();
-    // renderNow();
+    this->update();
   }
 
   QPoint thePoint = event->pos();
@@ -319,7 +323,7 @@ void SceneViewerView::mouseMoveEvent(QMouseEvent *event) {
   }
 }
 
-void SceneViewerView::mouseReleaseEvent(QMouseEvent *event) {
+void SceneViewerInner::mouseReleaseEvent(QMouseEvent *event) {
 
   Ogre::Real x = Ogre::Real(event->windowPos().x()) / width();
   Ogre::Real y = Ogre::Real(event->windowPos().y()) / height();
@@ -331,8 +335,7 @@ void SceneViewerView::mouseReleaseEvent(QMouseEvent *event) {
 
   if (mCameraController) {
     mCameraController->mouseReleased(event);
-    parentWidget->update();
-    // renderNow();
+    this->update();
   }
 
   Ogre::RaySceneQuery *pSceneQuery = mSceneManager->createRayQuery(ray);
@@ -361,18 +364,20 @@ void SceneViewerView::mouseReleaseEvent(QMouseEvent *event) {
   if (qRubberBand) {
     isDragging = 0;
     qRubberBand->hide();
+    this->update();
   }
 }
 
-bool SceneViewerView::frameRenderingQueued(const Ogre::FrameEvent &event) {
+bool SceneViewerInner::frameRenderingQueued(
+    const Ogre::FrameEvent &event) {
   if (mCameraController) {
     mCameraController->frameRendered(event);
   }
   return true;
 }
 
-void SceneViewerView::drawRubberBand(const int minX, const int minY, const int maxX,
-                              const int maxY) {
+void SceneViewerInner::drawRubberBand(const int minX, const int minY,
+                                            const int maxX, const int maxY) {
   QRect aRect;
 
   // Set the rectangle correctly.
@@ -382,8 +387,8 @@ void SceneViewerView::drawRubberBand(const int minX, const int minY, const int m
   aRect.setWidth(abs(maxX - minX));
   aRect.setHeight(abs(maxY - minY));
 
-  if (!qRubberBand && parentWidget) {
-    qRubberBand = new QRubberBand(QRubberBand::Rectangle, parentWidget);
+  if (!qRubberBand && widgetOverlay) {
+    qRubberBand = new QRubberBand(QRubberBand::Rectangle, widgetOverlay.get());
     // setStyle is important, set to windows style will just draw
     // rectangle frame, otherwise will draw a solid rectangle.
     qRubberBand->setStyle(QStyleFactory::create("windows"));
@@ -395,16 +400,22 @@ void SceneViewerView::drawRubberBand(const int minX, const int minY, const int m
   }
 }
 
-void SceneViewerView::rubberBandPaint(QPaintEvent *event, QPainter &p) {
+void SceneViewerInner::rubberBandPaint(QPaintEvent *event, QPainter &p) {
   p.setPen(QPen(Qt::black, 2));
   if (myXmax > 10 && myYmax > 10) {
     p.drawText(myXmax, myYmax, QString("%1,%2").arg(myXmax).arg(myYmax));
   }
-  p.drawText(0, 0, QString("%1,%2").arg(myXmax).arg(myYmax));
+  p.drawText(2, 10, QString("%1,%2").arg(myXmax).arg(myYmax));
 }
 
-void SceneViewerView::setParentWidget(QWidget *parentWidget_) {
+void SceneViewerInner::setParentWidget(QWidget *parentWidget_) {
   if (parentWidget_) {
     parentWidget = parentWidget_;
+  }
+}
+
+void SceneViewerInner::setOverlayWidget(QWidget *overlayWidget_) {
+  if (overlayWidget_) {
+    overlayWidget = overlayWidget_;
   }
 }

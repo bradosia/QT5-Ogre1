@@ -15,16 +15,21 @@
 
 #pragma once
 
+// c++
+#include <memory>
+
 // QT
 #include <QApplication>
 
 // QT5-OGRE3D UI
-#include "mainWindow.h"
+#include "MainWindow.hpp"
 
 class Application final : public QApplication {
 public:
   Application(int &argc, char **argv);
   ~Application();
+
+  void initializeOgre();
 private:
-  MainWindow *w;
+  std::unique_ptr<MainWindow> mainWindow;
 };

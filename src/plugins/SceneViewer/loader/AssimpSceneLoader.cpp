@@ -1,4 +1,6 @@
 #include "AssimpSceneLoader.hpp"
+
+// Ogre1
 #include <OgreCamera.h>
 #include <OgreEntity.h>
 #include <OgreHardwareBufferManager.h>
@@ -12,6 +14,8 @@
 #include <OgreTextureManager.h>
 #include <OgreVector3.h>
 #include <OgreMatrix4.h>
+
+// assimp
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>

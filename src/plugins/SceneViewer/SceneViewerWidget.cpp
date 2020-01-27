@@ -18,7 +18,7 @@
 /*
  * UI
  */
-#include "SceneViewerWidget.h"
+#include "SceneViewerWidget.hpp"
 
 // QT
 #include <QObject>
@@ -26,14 +26,17 @@
 #include <QWidget>
 
 SceneViewerWidget::SceneViewerWidget(QWidget *parentWidget_) {
-  sceneViewerViewContainer =
-      std::unique_ptr<QWidget>(QWidget::createWindowContainer(&mainView));
-  // overlay.raise();
-  layoutInner.addWidget(&overlay);
-  sceneViewerViewContainer->setLayout(&layoutInner);
-  layout.addWidget(sceneViewerViewContainer.get());
-  this->setLayout(&layout);
-#ifdef DEBUG
+  layout = std::make_unique<QVBoxLayout>();
+  widgetInner = std::make_unique<SceneViewerInner>(this);
+
+  //setAttribute(Qt::WA_NoBackground);
+  //setAttribute(Qt::WA_PaintOnScreen);
+
+  layout->setMargin(0);
+  layout->addWidget(widgetInner.get());
+  this->setLayout(layout.get());
+
+#ifdef DEBUG_SCENE_VIEWER_WIDGET_PARENT
   // scene viewer widget -> Central Widget -> Main Window
   QWidget *parentWidgetTest;
   if (parentWidget_) {
@@ -59,14 +62,33 @@ SceneViewerWidget::SceneViewerWidget(QWidget *parentWidget_) {
              childObject->objectName().toStdString().c_str());
     }
     // find specific widget
-    QList<QWidget *> widgetList =
-        parentWidgetTest->findChildren<QWidget *>("toolBar", Qt::FindDirectChildrenOnly);
+    QList<QWidget *> widgetList = parentWidgetTest->findChildren<QWidget *>(
+        "centralWidget", Qt::FindDirectChildrenOnly);
+
+    // find specific widget
+    QList<QWidget *> widgetToolBarList =
+        parentWidgetTest->findChildren<QWidget *>("toolBar",
+                                                  Qt::FindDirectChildrenOnly);
+    if (!widgetToolBarList.empty()) {
+      QWidget *toolBarWidget = widgetList.at(0);
+      //toolBarWidget->setFixedHeight(50);
+      //toolBarWidget->setContentsMargins(10, 10, 10, 10);
+    }
+
     n = widgetList.length();
     for (unsigned int i = 0; i < n; i++) {
       QWidget *childWidget = widgetList.at(i);
-      printf("===== DEBUG: PARENT CHILD #%d NAME: %s =====\n", i,
+      printf("===== DEBUG: PARENT FIND #%d NAME: %s =====\n", i,
              childWidget->objectName().toStdString().c_str());
-      childWidget->setFixedHeight(120);
+      // childWidget->setFixedHeight(100);
+      // find widget children
+      QList<QObject *> widgetChildList = childWidget->children();
+      unsigned int n = widgetChildList.length();
+      for (unsigned int i = 0; i < n; i++) {
+        QObject *widgetChildObject = widgetChildList.at(i);
+        printf("===== DEBUG: FIND WIDGET CHILD #%d NAME: %s =====\n", i,
+               widgetChildObject->objectName().toStdString().c_str());
+      }
     }
   }
 #endif
@@ -75,14 +97,14 @@ SceneViewerWidget::SceneViewerWidget(QWidget *parentWidget_) {
 
 void SceneViewerWidget::paintEvent(QPaintEvent *event) {
   static int count = 0;
-  qDebug("paintEvent, %d", count++);
-  // mainView->renderNow();
+  printf("DEBUG: SceneViewerContainer paintEvent: %d\n", count++);
   QPainter painter(this);
-  mainView.rubberBandPaint(event, painter);
-  painter.setBrush(Qt::green);
-  painter.drawRect(QRect(0, 0, 1000, 1000));
+  painter.setBrush(Qt::blue);
+  painter.drawRect(QRect(0, 0, 200, 100));
+  // widgetInner->renderNow();
+  // widgetInner->rubberBandPaint(event, painter);
 }
 
 void SceneViewerWidget::resizeEvent(QResizeEvent *event) {
-  overlay.resize(size());
+  //widgetOverlay->resize(size());
 }

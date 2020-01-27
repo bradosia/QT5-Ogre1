@@ -17,8 +17,8 @@
  * Icons and images owned by their respective owners
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 // QT5-OGRE1 Config
 #include "../core/config.hpp"
@@ -31,10 +31,11 @@
 #include <sstream>
 #include <vector>
 
-#include "../plugins/SceneViewer/SceneViewerWidget.h"
-//#include "../plugins/RenderViewer/RenderViewerWidget.h"
+// plugins
+#include "../plugins/SceneViewer/SceneViewerWidget.hpp"
+#include "../plugins/RenderViewer/RenderViewerWidget.hpp"
 
-// QT5-OGRE3D UI
+// QT5-OGRE1 UI
 #include "ui_main.h"
 
 class MainWindow : public QMainWindow {
@@ -49,8 +50,7 @@ private:
   Ui::main ui;
 
   // widgets
-  //std::unique_ptr<SceneViewerWidget> sceneViewerWidget;
-  //SceneViewerWidget sceneViewerWidget{this};
-  //RenderViewerWidget renderViewerWidget;
+  std::unique_ptr<SceneViewerWidget> sceneViewerWidget;
+  std::unique_ptr<RenderViewerWidget> renderViewerWidget;
 };
-#endif // MAINWINDOW_H
+#endif // MAIN_WINDOW_H

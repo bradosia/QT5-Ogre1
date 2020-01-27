@@ -15,11 +15,11 @@
 
 #pragma once
 
-#include "../SceneViewer/window/OgreWindow.hpp"
+#include "../SceneViewer/window/OgreWidget.hpp"
 
-class RenderViewerView : public OgreWindow {
+class RenderViewerWidget : public OgreWidget {
   Q_OBJECT
 public:
-  explicit RenderViewerView(QWidget *parentWidget_ = nullptr, QWindow *parentWindow_ = nullptr);
-  ~RenderViewerView(){};
+  explicit RenderViewerWidget(QWidget *parentWidget_ = nullptr);
+  ~RenderViewerWidget(){};
 };

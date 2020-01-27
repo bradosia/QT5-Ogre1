@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.1)
 
 project(QT5-Ogre3D VERSION 1.0.0)
 
+# Configurable Options
+set(BUILD_SHARED_LIBS ON)
+set(BUILD_STATIC_LIBS ON)
+
 # Automatically compile .ui to .h
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -45,13 +49,18 @@ link_directories(${OGRE_LIBRARY_DIRS})
 link_directories(${OGRE_PLUGIN_DIR})
 link_directories(${ASSIMP_LIBRARY_DIRS})
 
-file(GLOB_RECURSE SOURCES "src/*[.cpp|.hpp|.h]")
+add_subdirectory(src/plugins)
+
 file(GLOB_RECURSE RESOURCES "res/materials/*.material" "res/models/*.mesh")
 
 set(SOURCES ${SOURCES}
-    "src/UI/mainWindow.cpp"
+"src/UI/main.cpp"
+"src/UI/MainWindow.cpp"
+"src/UI/Application.cpp"
 
-    "src/UI/mainWindow.h"
+"src/core/config.hpp"
+"src/UI/MainWindow.hpp"
+"src/UI/Application.hpp"
 )
 
 set(RESOURCES ${RESOURCES}
@@ -61,6 +70,9 @@ set(RESOURCES ${RESOURCES}
 )
 
 add_executable(QT5-Ogre3D ${SOURCES} ${RESOURCES})
+
+target_link_libraries(QT5-Ogre3D RenderViewerWidgetLib)
+target_link_libraries(QT5-Ogre3D SceneViewerWidgetLib)
 
 target_link_libraries(QT5-Ogre3D Qt5::Widgets)
 target_link_libraries(QT5-Ogre3D ${OGRE_LIBRARIES})

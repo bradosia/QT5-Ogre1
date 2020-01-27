@@ -1,17 +1,17 @@
-#include "RenderViewerView.hpp"
+#include "RenderViewerWidget.hpp"
 
-// plugin
-#include "../SceneViewer/SceneViewerCommon.hpp"
-#include "../SceneViewer/object/CameraObject.hpp"
-
-// OGRE
+// OGRE1
 #include <OgreCamera.h>
 #include <OgreRenderWindow.h>
 #include <OgreRoot.h>
 #include <OgreSceneNode.h>
 #include <OgreViewport.h>
 
-RenderViewerView::RenderViewerView(QWidget *parentWidget_, QWindow *parentWindow_) : OgreWindow(parentWidget_) {
+// plugin
+#include "../SceneViewer/SceneViewerCommon.hpp"
+#include "../SceneViewer/object/CameraObject.hpp"
+
+RenderViewerWidget::RenderViewerWidget(QWidget *parentWidget_) : OgreWidget(parentWidget_) {
 
   Ogre::String sceneTypeName =
       Ogre::DefaultSceneManagerFactory::FACTORY_TYPE_NAME;

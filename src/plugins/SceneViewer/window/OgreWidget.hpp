@@ -13,20 +13,28 @@
  * Icons and images owned by their respective owners
  */
 
-#ifndef PLUGIN_SCENE_VIEWER_WINDOW_OGRE_WINDOW_H
-#define PLUGIN_SCENE_VIEWER_WINDOW_OGRE_WINDOW_H
+#ifndef PLUGIN_SCENE_VIEWER_WINDOW_OGRE_WIDGET_H
+#define PLUGIN_SCENE_VIEWER_WINDOW_OGRE_WIDGET_H
 
 // QT5-OGRE1 Config
 #include "../../../core/config.hpp"
 
-#include <OgreFrameListener.h>
-#include <QWindow>
+// QT5
+#include <QEvent>
+#include <QWidget>
 
-class OgreWindow : public QWindow, public Ogre::FrameListener {
+// OGRE1
+#include <OgreFrameListener.h>
+
+class OgreWidget : public QWidget, public Ogre::FrameListener {
   Q_OBJECT
 public:
-  explicit OgreWindow(QWidget *parentWidget, QWindow *parentWindow = nullptr);
-  ~OgreWindow();
+  explicit OgreWidget(QWidget *parentWidget_ = nullptr);
+  ~OgreWidget();
+
+  // Override QWidget::paintEngine to return NULL
+  QPaintEngine *
+  paintEngine() const; // Turn off QTs paint engine for the Ogre widget.
 
   virtual void render(QPainter *) {}
   virtual void render();
@@ -37,6 +45,9 @@ public:
   Ogre::RenderWindow *renderWindow() const { return mRenderWindow; }
 
 protected:
+  void resizeEvent(QResizeEvent *event);
+  void paintEvent(QPaintEvent *event);
+
   virtual bool eventFilter(QObject *target, QEvent *event) override;
 
   virtual void initialize();
